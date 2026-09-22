@@ -156,4 +156,33 @@ document.addEventListener(
 if (status) {
   status.textContent =
     "TOCA UN PAD PARA ACTIVAR EL AUDIO";
+  
+}
+const startButton = document.querySelector("#start");
+
+if (startButton) {
+  startButton.addEventListener("click", async () => {
+    try {
+      startButton.textContent = "CARGANDO...";
+      if (status) status.textContent = "Cargando los 10 sonidos...";
+
+      await initAudio();
+
+      if (ctx && ctx.state === "suspended") {
+        await ctx.resume();
+      }
+
+      startButton.textContent = "AUDIO LISTO";
+      if (status) {
+        status.textContent =
+          "AUDIO LISTO • " +
+          Object.keys(buffers).length +
+          "/10 sonidos cargados";
+      }
+    } catch (error) {
+      console.error(error);
+      startButton.textContent = "ERROR AUDIO";
+      if (status) status.textContent = "ERROR: " + error.message;
+    }
+  });
 }
