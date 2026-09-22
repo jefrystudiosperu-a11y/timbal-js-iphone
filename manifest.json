@@ -1,1 +1,19 @@
-{"name":"Timbal JS","short_name":"Timbal JS","start_url":"./index.html","display":"standalone","orientation":"landscape","background_color":"#080b10","theme_color":"#080b10"}
+{
+  "name": "Timbal JS",
+  "short_name": "Timbal JS",
+  "description": "Instrumento virtual de timbal latino - Jefry Studios",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#080b10",
+  "theme_color": "#080b10",
+  "icons": [
+    {
+      "src": "./icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
