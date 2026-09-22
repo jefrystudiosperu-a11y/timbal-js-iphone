@@ -264,3 +264,77 @@ footer label{
   font-size:.55em !important;
   line-height:1 !important;
 }
+/* ===== TIMBAL DERECHO - LLENAR TODO EL ESPACIO ===== */
+
+.drums .drum:nth-child(2){
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  grid-template-rows:auto minmax(0,1fr) !important;
+  gap:10px !important;
+}
+
+.drums .drum:nth-child(2) > .rim{
+  grid-column:1 !important;
+  grid-row:1 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+}
+
+.drums .drum:nth-child(2) > .split{
+  grid-column:1 !important;
+  grid-row:2 !important;
+
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  grid-template-rows:minmax(0,1fr) !important;
+
+  width:100% !important;
+  max-width:none !important;
+  height:100% !important;
+  min-height:0 !important;
+
+  margin:0 !important;
+  padding:0 !important;
+  gap:10px !important;
+
+  align-items:stretch !important;
+  justify-items:stretch !important;
+}
+
+.drums .drum:nth-child(2) > .split > button{
+  position:static !important;
+
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+
+  height:100% !important;
+  max-height:none !important;
+  min-height:0 !important;
+
+  margin:0 !important;
+  padding:10px !important;
+
+  transform:none !important;
+  inset:auto !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-direction:column !important;
+
+  border-radius:42% !important;
+  overflow:hidden !important;
+
+  font-size:clamp(18px,2.5vw,34px) !important;
+  line-height:1.05 !important;
+  text-align:center !important;
+}
+
+.drums .drum:nth-child(2) > .split > button small{
+  display:block !important;
+  margin-top:5px !important;
+  font-size:.52em !important;
+  line-height:1 !important;
+}
