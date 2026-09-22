@@ -372,3 +372,22 @@ footer label{
     font-size:9px;
   }
 }
+/* ===== TIMBAL JS - OCULTAR ESTADO INFERIOR ===== */
+
+/* Oculta únicamente el texto:
+   "AUDIO LISTO • 10/10 sonidos cargados" */
+#status{
+    display:none !important;
+}
+
+/* Mantiene el footer limpio para el control MASTER */
+footer{
+    justify-content:flex-end !important;
+}
+
+/* En horizontal también permanece oculto */
+@media (orientation: landscape){
+    #status{
+        display:none !important;
+    }
+}
