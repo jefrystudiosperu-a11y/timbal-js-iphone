@@ -13,176 +13,281 @@ const files = {
 
 let ctx = null;
 let master = null;
-const buffers = {};
+let loadingPromise = null;
+const buffers = Object.create(null);
 
 const status = document.querySelector("#status");
+const startButton = document.querySelector("#start");
+const masterSlider = document.querySelector("#master");
 
-async function initAudio() {
-  if (!ctx) {
-    const AudioContextClass =
-      window.AudioContext || window.webkitAudioContext;
+function createAudioEngine() {
+  if (ctx) return;
 
-    ctx = new AudioContextClass({
-      latencyHint: "interactive"
-    });
+  const AudioContextClass =
+    window.AudioContext || window.webkitAudioContext;
 
-    master = ctx.createGain();
-    master.gain.value =
-      Number(document.querySelector("#master")?.value || 1);
+  ctx = new AudioContextClass({
+    latencyHint: "interactive"
+  });
 
-    master.connect(ctx.destination);
+  master = ctx.createGain();
 
-    if (status) status.textContent = "Cargando sonidos...";
+  master.gain.value = masterSlider
+    ? Number(masterSlider.value)
+    : 0.9;
 
-    for (const [name, url] of Object.entries(files)) {
-      try {
-        const response = await fetch(
-          encodeURI(url),
-          { cache: "no-store" }
-        );
+  master.connect(ctx.destination);
 
-        if (!response.ok) {
-          throw new Error(
-            `${response.status} ${response.statusText}`
-          );
-        }
+  /* Desbloqueo inmediato para iPhone/iPad */
+  const silentBuffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+  const silentSource = ctx.createBufferSource();
 
-        const arrayBuffer = await response.arrayBuffer();
+  silentSource.buffer = silentBuffer;
+  silentSource.connect(master);
+  silentSource.start(0);
+}
 
-        buffers[name] =
-          await ctx.decodeAudioData(arrayBuffer);
+function unlockAudio() {
+  createAudioEngine();
 
-      } catch (error) {
-        console.error("ERROR:", name, url, error);
+  if (ctx.state !== "running") {
+    ctx.resume().catch(() => {});
+  }
+}
 
-        if (status) {
-          status.textContent =
-            "ERROR cargando: " + url;
-        }
+async function loadSamples() {
+  createAudioEngine();
+
+  if (loadingPromise) return loadingPromise;
+
+  if (status) {
+    status.textContent = "Cargando sonidos...";
+  }
+
+  loadingPromise = Promise.all(
+    Object.entries(files).map(async ([name, url]) => {
+      const response = await fetch(url, {
+        cache: "force-cache"
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudo cargar " + url);
       }
-    }
 
-    if (
-      Object.keys(buffers).length ===
-      Object.keys(files).length
-    ) {
+      const arrayBuffer = await response.arrayBuffer();
+
+      buffers[name] =
+        await ctx.decodeAudioData(arrayBuffer.slice(0));
+    })
+  )
+    .then(() => {
       if (status) {
         status.textContent =
           "AUDIO LISTO • 10/10 sonidos cargados";
       }
-    }
-  }
 
-  if (ctx.state === "suspended") {
-    await ctx.resume();
-  }
-}
+      if (startButton) {
+        startButton.textContent = "AUDIO LISTO";
+      }
+    })
+    .catch(error => {
+      console.error(error);
 
-async function playSound(name, element) {
-  try {
-    await initAudio();
-
-    if (!buffers[name]) {
       if (status) {
         status.textContent =
-          "NO CARGÓ: " + (files[name] || name);
+          "ERROR DE AUDIO: " + error.message;
       }
-      return;
-    }
 
-    const source = ctx.createBufferSource();
+      loadingPromise = null;
+    });
 
-    source.buffer = buffers[name];
-    source.connect(master);
-    source.start(0);
+  return loadingPromise;
+}
 
+/*
+  Cada golpe crea un BufferSource NUEVO.
+  Así un golpe nunca corta al anterior.
+*/
+function playSound(name, element) {
+  if (!ctx || !buffers[name]) return;
+
+  if (ctx.state !== "running") {
+    ctx.resume().catch(() => {});
+  }
+
+  const source = ctx.createBufferSource();
+
+  source.buffer = buffers[name];
+
+  /* Reproducción original: sin alterar pitch ni velocidad */
+  source.playbackRate.value = 1.0;
+
+  source.connect(master);
+
+  /*
+    Pequeño margen de planificación.
+    Evita golpes perdidos cuando se toca muy rápido.
+  */
+  const when = Math.max(
+    ctx.currentTime,
+    ctx.currentTime + 0.001
+  );
+
+  source.start(when);
+
+  if (element) {
     element.classList.add("hit");
 
     setTimeout(() => {
       element.classList.remove("hit");
-    }, 90);
+    }, 65);
+  }
 
-  } catch (error) {
-    console.error(error);
+  source.onended = () => {
+    try {
+      source.disconnect();
+    } catch (_) {}
+  };
+}
 
-    if (status) {
-      status.textContent =
-        "ERROR DE AUDIO: " + error.message;
-    }
+async function prepareAudio() {
+  unlockAudio();
+
+  if (!loadingPromise) {
+    await loadSamples();
+  }
+
+  if (ctx && ctx.state !== "running") {
+    try {
+      await ctx.resume();
+    } catch (_) {}
   }
 }
 
-const masterSlider =
-  document.querySelector("#master");
+/* Botón de activación, aunque visualmente esté oculto */
+if (startButton) {
+  startButton.addEventListener(
+    "pointerdown",
+    () => {
+      unlockAudio();
+      loadSamples();
+    },
+    { passive: true }
+  );
 
-if (masterSlider) {
-  masterSlider.addEventListener("input", e => {
-    if (master) {
-      master.gain.value =
-        Number(e.target.value);
-    }
+  startButton.addEventListener("click", () => {
+    unlockAudio();
+    loadSamples();
   });
 }
 
+/* MASTER */
+if (masterSlider) {
+  masterSlider.addEventListener(
+    "input",
+    event => {
+      if (!master) return;
+
+      master.gain.setValueAtTime(
+        Number(event.target.value),
+        ctx.currentTime
+      );
+    },
+    { passive: true }
+  );
+}
+
+/*
+  PADS:
+  pointerdown dispara el sonido inmediatamente.
+  No esperamos pointerup ni click.
+*/
 document
   .querySelectorAll("[data-sound]")
   .forEach(element => {
+    element.style.touchAction = "none";
 
     element.addEventListener(
       "pointerdown",
-      async e => {
-        e.preventDefault();
+      event => {
+        event.preventDefault();
 
-        try {
-          element.setPointerCapture?.(
-            e.pointerId
-          );
-        } catch (_) {}
+        unlockAudio();
 
-        await playSound(
-          element.dataset.sound,
-          element
-        );
-      }
+        const name = element.dataset.sound;
+
+        /*
+          Si ya está precargado:
+          tocar inmediatamente.
+        */
+        if (buffers[name]) {
+          playSound(name, element);
+          return;
+        }
+
+        /*
+          Solo ocurrirá durante la primera carga.
+        */
+        loadSamples().then(() => {
+          if (buffers[name]) {
+            playSound(name, element);
+          }
+        });
+      },
+      { passive: false }
     );
-
   });
+
+/*
+  Precarga apenas la app recibe el primer gesto.
+*/
+const firstGesture = () => {
+  unlockAudio();
+  loadSamples();
+
+  document.removeEventListener(
+    "touchstart",
+    firstGesture
+  );
+
+  document.removeEventListener(
+    "pointerdown",
+    firstGesture
+  );
+};
+
+document.addEventListener(
+  "touchstart",
+  firstGesture,
+  {
+    passive: true,
+    once: true
+  }
+);
+
+document.addEventListener(
+  "pointerdown",
+  firstGesture,
+  {
+    passive: true,
+    once: true
+  }
+);
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+    if (
+      document.visibilityState === "visible" &&
+      ctx &&
+      ctx.state === "suspended"
+    ) {
+      ctx.resume().catch(() => {});
+    }
+  }
+);
 
 document.addEventListener(
   "contextmenu",
-  e => e.preventDefault()
+  event => event.preventDefault()
 );
-
-if (status) {
-  status.textContent =
-    "TOCA UN PAD PARA ACTIVAR EL AUDIO";
-  
-}
-const startButton = document.querySelector("#start");
-
-if (startButton) {
-  startButton.addEventListener("click", async () => {
-    try {
-      startButton.textContent = "CARGANDO...";
-      if (status) status.textContent = "Cargando los 10 sonidos...";
-
-      await initAudio();
-
-      if (ctx && ctx.state === "suspended") {
-        await ctx.resume();
-      }
-
-      startButton.textContent = "AUDIO LISTO";
-      if (status) {
-        status.textContent =
-          "AUDIO LISTO • " +
-          Object.keys(buffers).length +
-          "/10 sonidos cargados";
-      }
-    } catch (error) {
-      console.error(error);
-      startButton.textContent = "ERROR AUDIO";
-      if (status) status.textContent = "ERROR: " + error.message;
-    }
-  });
-}
