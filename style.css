@@ -8,25 +8,23 @@ html,body{
   width:100%;
   height:100%;
   background:#080b10;
-  color:white;
+  color:#fff;
   font-family:Arial,Helvetica,sans-serif;
   overflow:hidden;
-  touch-action:manipulation;
 }
 
 body{
-  display:flex;
-  flex-direction:column;
+  display:grid;
+  grid-template-rows:17% 1fr 10%;
 }
 
 header{
-  height:18vh;
-  min-height:90px;
+  min-height:0;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:10px 5%;
-  border-bottom:1px solid #333b47;
+  padding:8px 4%;
+  border-bottom:1px solid #343b45;
 }
 
 header div{
@@ -35,470 +33,342 @@ header div{
 }
 
 header b{
-  font-size:clamp(30px,5vw,58px);
-  color:#ffc229;
-  text-shadow:0 0 18px rgba(255,174,0,.55);
+  color:#ffc027;
+  font-size:clamp(28px,4.3vw,58px);
   line-height:.9;
+  text-shadow:0 0 18px rgba(255,180,0,.45);
 }
 
 header span{
-  margin-top:12px;
-  font-size:clamp(10px,1.5vw,18px);
-  letter-spacing:7px;
-  color:#aeb4bd;
+  margin-top:8px;
+  color:#aeb5c0;
+  font-size:clamp(9px,1.2vw,17px);
+  letter-spacing:6px;
 }
 
 #start{
-  border:2px solid #c79422;
+  background:#17130b;
+  color:#ffd15b;
+  border:2px solid #c99520;
   border-radius:18px;
-  padding:17px 30px;
-  background:#17130c;
-  color:#ffd05a;
+  padding:13px 28px;
   font-weight:900;
-  font-size:15px;
+  font-size:clamp(12px,1.4vw,17px);
 }
 
 main{
-  flex:1;
   min-height:0;
-  display:flex;
-  flex-direction:column;
-  padding:10px 1.2%;
-  gap:10px;
+  overflow:hidden;
+  display:grid;
+  grid-template-rows:25% minmax(0,75%);
+  gap:7px;
+  padding:7px 1.2%;
 }
 
 .accessories{
-  height:22%;
-  min-height:80px;
+  min-height:0;
   display:grid;
-  grid-template-columns:1fr 1fr .9fr 1.15fr .75fr;
-  gap:10px;
+  grid-template-columns:1fr .85fr 1fr 1.2fr .75fr;
+  gap:8px;
 }
 
 button{
-  color:white;
   font-family:inherit;
   font-weight:900;
-  cursor:pointer;
   touch-action:manipulation;
 }
 
 .pad{
-  border:3px solid #59616d;
-  border-radius:22px;
-  font-size:clamp(17px,2.3vw,31px);
+  min-width:0;
+  min-height:0;
+  color:#fff;
+  border:3px solid #626c79;
+  border-radius:18px;
+  font-size:clamp(14px,2vw,28px);
   text-shadow:0 3px 4px #000;
-  box-shadow:inset 0 4px 15px rgba(255,255,255,.18);
+  box-shadow:inset 0 4px 15px rgba(255,255,255,.17);
 }
 
 .red{
-  background:linear-gradient(#df3b27,#82170f);
+  background:linear-gradient(#e13c29,#86170f);
 }
 
 .steel{
-  background:linear-gradient(#9ba5ae,#303943);
+  background:linear-gradient(#a4adb5,#303944);
 }
 
 .gold{
-  background:linear-gradient(#c69a27,#59400b);
+  background:linear-gradient(#c89a26,#65480d);
 }
 
 .cym{
-  background:linear-gradient(#d6ad3d,#70500d);
+  background:linear-gradient(#d5aa38,#76530e);
 }
 
 .cym2{
-  background:linear-gradient(#d4bb72,#715d25);
+  background:linear-gradient(#d7be76,#786328);
 }
 
 .drums{
-  flex:1;
   min-height:0;
+  overflow:hidden;
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:14px;
+  gap:10px;
 }
 
 .drum{
   min-width:0;
   min-height:0;
-  border:4px solid #747d8b;
-  border-radius:30px;
-  padding:10px;
-  background:linear-gradient(145deg,#1c232c,#070a0f);
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+  overflow:hidden;
+  display:grid;
+  grid-template-rows:27% minmax(0,73%);
+  gap:7px;
+  padding:7px;
+  border:4px solid #77818f;
+  border-radius:25px;
+  background:linear-gradient(145deg,#1b222b,#070a0e);
 }
 
 .rim{
-  flex:0 0 24%;
-  min-height:55px;
-  width:100%;
-  border:3px solid #647080;
-  border-radius:18px;
-  background:linear-gradient(#4d5965,#111820);
-  font-size:clamp(18px,2.2vw,30px);
-  text-shadow:0 3px 4px #000;
-}
-
-/* PARCHE GRAVE */
-.drum:first-child .lower{
-  flex:1;
-  width:100%;
-}
-
-/* TIMBAL AGUDO:
-   CENTRO IZQUIERDA + AGUDO DERECHA */
-.drum:nth-child(2) .split{
-  flex:1;
-  min-height:0;
-  width:100%;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  grid-template-rows:1fr;
-  gap:10px;
-}
-
-.drum:nth-child(2) .split .head{
   width:100%;
   height:100%;
   min-width:0;
   min-height:0;
   margin:0;
+  padding:4px;
+  color:#fff;
+  border:3px solid #697585;
+  border-radius:15px;
+  background:linear-gradient(#4f5c68,#121921);
+  font-size:clamp(14px,2vw,27px);
+  text-shadow:0 3px 4px #000;
+}
+
+/* PARCHE GRAVE */
+.drum:first-child .lower{
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  margin:0;
+  padding:6px;
+}
+
+/* CENTRO + AGUDO */
+.agudo-pads{
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
+  gap:8px;
+  overflow:hidden;
+}
+
+.agudo-pads > .head{
+  position:static;
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  max-width:none;
+  max-height:none;
+  margin:0;
+  padding:5px;
+  transform:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
 }
 
 .head{
-  border:3px solid #687485;
-  border-radius:50%;
-  background:
-    radial-gradient(ellipse at 38% 32%,
-    #ffffff 0%,
-    #dce0e2 28%,
-    #87909a 52%,
-    #252c34 74%,
-    #080b0f 100%);
   color:#080808;
-  font-size:clamp(18px,2.7vw,36px);
+  border:3px solid #707c8c;
+  border-radius:42%;
+  background:
+    radial-gradient(
+      ellipse at 38% 32%,
+      #fff 0%,
+      #e1e4e6 28%,
+      #929ba4 52%,
+      #313841 73%,
+      #090c10 100%
+    );
+  font-size:clamp(14px,2.25vw,31px);
   font-weight:900;
-  text-shadow:0 1px 1px rgba(255,255,255,.3);
+  line-height:1.02;
+  text-align:center;
 }
 
 .head small{
   display:block;
-  font-size:.55em;
+  margin-top:4px;
+  font-size:.48em;
+  line-height:1;
 }
 
 .pad.hit,
 .rim.hit,
 .head.hit{
-  filter:brightness(1.7);
+  filter:brightness(1.65);
   box-shadow:
-    0 0 22px rgba(255,194,41,.95),
-    inset 0 0 20px rgba(255,255,255,.7);
-  transform:scale(.985);
+    0 0 20px rgba(255,194,41,.9),
+    inset 0 0 18px rgba(255,255,255,.65);
 }
 
 footer{
-  height:10vh;
-  min-height:48px;
-  padding:5px 2%;
+  min-height:0;
+  overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:20px;
-  border-top:1px solid #333b47;
+  gap:15px;
+  padding:3px 2%;
+  border-top:1px solid #343b45;
   background:#0b0f14;
-  font-size:13px;
   color:#aeb5be;
+  font-size:clamp(10px,1.2vw,15px);
 }
 
 footer label{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:9px;
   color:#ffc229;
-  font-weight:bold;
+  font-weight:900;
 }
 
 #master{
-  width:170px;
-}
-/* AJUSTE FINAL: CENTRO + AGUDO LADO A LADO */
-.drum:nth-child(2) .split{
-  flex:1 !important;
-  width:100% !important;
-  min-height:0 !important;
-  display:grid !important;
-  grid-template-columns:1fr 1fr !important;
-  grid-template-rows:1fr !important;
-  gap:12px !important;
-  align-items:stretch !important;
+  width:min(190px,22vw);
 }
 
-.drum:nth-child(2) .split .head{
-  position:relative !important;
-  inset:auto !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:100% !important;
-  max-width:none !important;
-  height:100% !important;
-  min-width:0 !important;
-  min-height:0 !important;
-  margin:0 !important;
-  padding:8px !important;
-  border-radius:38% !important;
-  font-size:clamp(17px,2.4vw,32px) !important;
-  line-height:1.05 !important;
-  overflow:hidden !important;
-  white-space:normal !important;
-  text-align:center !important;
-}
 
-.drum:nth-child(2) .split .head small{
-  display:block !important;
-  margin-top:6px !important;
-  font-size:.55em !important;
-  line-height:1 !important;
-}
-/* ===== TIMBAL DERECHO - LLENAR TODO EL ESPACIO ===== */
+/* =========================================
+   iPHONE EN HORIZONTAL
+   ========================================= */
 
-.drums .drum:nth-child(2){
-  display:grid !important;
-  grid-template-columns:1fr !important;
-  grid-template-rows:auto minmax(0,1fr) !important;
-  gap:10px !important;
-}
+@media (orientation:landscape){
 
-.drums .drum:nth-child(2) > .rim{
-  grid-column:1 !important;
-  grid-row:1 !important;
-  width:100% !important;
-  height:100% !important;
-  margin:0 !important;
-}
-
-.drums .drum:nth-child(2) > .split{
-  grid-column:1 !important;
-  grid-row:2 !important;
-
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
-  grid-template-rows:minmax(0,1fr) !important;
-
-  width:100% !important;
-  max-width:none !important;
-  height:100% !important;
-  min-height:0 !important;
-
-  margin:0 !important;
-  padding:0 !important;
-  gap:10px !important;
-
-  align-items:stretch !important;
-  justify-items:stretch !important;
-}
-
-.drums .drum:nth-child(2) > .split > button{
-  position:static !important;
-
-  width:100% !important;
-  max-width:none !important;
-  min-width:0 !important;
-
-  height:100% !important;
-  max-height:none !important;
-  min-height:0 !important;
-
-  margin:0 !important;
-  padding:10px !important;
-
-  transform:none !important;
-  inset:auto !important;
-
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  flex-direction:column !important;
-
-  border-radius:42% !important;
-  overflow:hidden !important;
-
-  font-size:clamp(18px,2.5vw,34px) !important;
-  line-height:1.05 !important;
-  text-align:center !important;
-}
-
-.drums .drum:nth-child(2) > .split > button small{
-  display:block !important;
-  margin-top:5px !important;
-  font-size:.52em !important;
-  line-height:1 !important;
-}
-/* PARCHE CENTRO + PARCHE AGUDO: 50/50 */
-.agudo-pads{
-  flex:1 !important;
-  display:flex !important;
-  flex-direction:row !important;
-  align-items:stretch !important;
-  justify-content:stretch !important;
-  width:100% !important;
-  height:100% !important;
-  max-width:none !important;
-  min-width:0 !important;
-  min-height:0 !important;
-  margin:0 !important;
-  padding:0 !important;
-  gap:10px !important;
-}
-
-.agudo-pads > .head{
-  position:static !important;
-  flex:1 1 50% !important;
-  width:50% !important;
-  height:100% !important;
-  max-width:none !important;
-  max-height:none !important;
-  min-width:0 !important;
-  min-height:0 !important;
-  margin:0 !important;
-  padding:8px !important;
-  inset:auto !important;
-  transform:none !important;
-
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-
-  border-radius:45% !important;
-  text-align:center !important;
-  overflow:hidden !important;
-  font-size:clamp(18px,2.5vw,34px) !important;
-  line-height:1.05 !important;
-}
-
-.agudo-pads > .head small{
-  display:block !important;
-  margin-top:5px !important;
-  font-size:.52em !important;
-}
-/* ===== IPHONE HORIZONTAL: TODO EN UNA SOLA PANTALLA ===== */
-@media (orientation: landscape) and (max-height: 600px){
-
-  html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden !important;
+  body{
+    grid-template-rows:16% 1fr 9%;
   }
 
   header{
-    height:17vh !important;
-    min-height:0 !important;
-    padding:5px 4% !important;
+    padding:4px 4%;
   }
 
   header b{
-    font-size:clamp(26px,4vw,48px) !important;
+    font-size:clamp(25px,4vw,48px);
   }
 
   header span{
-    margin-top:5px !important;
-    font-size:11px !important;
-    letter-spacing:5px !important;
+    margin-top:4px;
+    font-size:10px;
+    letter-spacing:5px;
   }
 
   #start{
-    padding:10px 24px !important;
-    font-size:13px !important;
-    border-radius:15px !important;
+    padding:8px 22px;
+    border-radius:14px;
   }
 
   main{
-    height:73vh !important;
-    flex:none !important;
-    min-height:0 !important;
-    padding:6px 1.2% !important;
-    gap:6px !important;
+    padding:5px 1%;
+    gap:5px;
+    grid-template-rows:23% minmax(0,77%);
   }
 
   .accessories{
-    height:24% !important;
-    min-height:0 !important;
-    gap:8px !important;
+    gap:7px;
   }
 
   .pad{
-    min-height:0 !important;
-    border-radius:16px !important;
-    font-size:clamp(14px,2vw,25px) !important;
+    border-radius:14px;
+    font-size:clamp(13px,1.8vw,23px);
   }
 
   .drums{
-    height:76% !important;
-    min-height:0 !important;
-    gap:10px !important;
+    gap:8px;
   }
 
   .drum{
-    height:100% !important;
-    min-height:0 !important;
-    padding:7px !important;
-    gap:7px !important;
-    border-radius:22px !important;
-    overflow:hidden !important;
+    padding:5px;
+    gap:5px;
+    border-width:3px;
+    border-radius:20px;
+
+    /* Cáscara arriba, parche debajo */
+    grid-template-rows:24% minmax(0,76%);
   }
 
   .rim{
-    flex:0 0 25% !important;
-    min-height:0 !important;
-    height:auto !important;
-    border-radius:14px !important;
-    font-size:clamp(15px,2vw,25px) !important;
+    border-width:2px;
+    border-radius:12px;
+    font-size:clamp(13px,1.8vw,22px);
   }
 
-  .drum:first-child .lower{
-    flex:1 !important;
-    min-height:0 !important;
-    height:100% !important;
+  .head{
+    border-width:2px;
+    font-size:clamp(13px,2vw,25px);
   }
 
   .agudo-pads{
-    flex:1 !important;
-    width:100% !important;
-    height:auto !important;
-    min-height:0 !important;
-    display:flex !important;
-    flex-direction:row !important;
-    gap:8px !important;
-  }
-
-  .agudo-pads > .head{
-    flex:1 1 50% !important;
-    width:50% !important;
-    height:100% !important;
-    min-height:0 !important;
-    border-radius:40% !important;
-    font-size:clamp(15px,2vw,25px) !important;
-    padding:5px !important;
-  }
-
-  .agudo-pads > .head small{
-    margin-top:3px !important;
-    font-size:.5em !important;
+    gap:6px;
   }
 
   footer{
-    height:10vh !important;
-    min-height:0 !important;
-    padding:3px 2% !important;
-    font-size:11px !important;
+    padding:2px 2%;
+  }
+}
+
+
+/* iPHONE HORIZONTAL DE POCA ALTURA */
+@media (orientation:landscape) and (max-height:450px){
+
+  body{
+    grid-template-rows:15% 1fr 8%;
   }
 
-  #master{
-    width:150px !important;
+  header b{
+    font-size:30px;
+  }
+
+  header span{
+    margin-top:2px;
+    font-size:8px;
+  }
+
+  #start{
+    padding:6px 18px;
+    font-size:11px;
+  }
+
+  main{
+    grid-template-rows:22% minmax(0,78%);
+    padding:4px 1%;
+    gap:4px;
+  }
+
+  .drum{
+    grid-template-rows:22% minmax(0,78%);
+    padding:4px;
+    gap:4px;
+  }
+
+  .pad,
+  .rim,
+  .head{
+    font-size:clamp(12px,1.8vw,20px);
+  }
+
+  footer{
+    font-size:9px;
   }
 }
