@@ -13,14 +13,21 @@ const files = {
 
 let ctx = null;
 let master = null;
-let loadingPromise = null;
+let ready = false;
+let loading = false;
+
 const buffers = Object.create(null);
 
 const status = document.querySelector("#status");
 const startButton = document.querySelector("#start");
 const masterSlider = document.querySelector("#master");
 
-function createAudioEngine() {
+
+/* ==========================================
+   CREAR MOTOR DE AUDIO UNA SOLA VEZ
+   ========================================== */
+
+function createEngine() {
   if (ctx) return;
 
   const AudioContextClass =
@@ -34,258 +41,285 @@ function createAudioEngine() {
 
   master.gain.value = masterSlider
     ? Number(masterSlider.value)
-    : 0.9;
+    : 1.0;
 
   master.connect(ctx.destination);
-
-  /* Desbloqueo inmediato para iPhone/iPad */
-  const silentBuffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-  const silentSource = ctx.createBufferSource();
-
-  silentSource.buffer = silentBuffer;
-  silentSource.connect(master);
-  silentSource.start(0);
 }
+
+
+/* ==========================================
+   DESBLOQUEO iPHONE / iPAD
+   ========================================== */
 
 function unlockAudio() {
-  createAudioEngine();
+  createEngine();
 
-  if (ctx.state !== "running") {
-    ctx.resume().catch(() => {});
+  if (ctx.state === "suspended") {
+    ctx.resume();
   }
+
+  /*
+    Buffer silencioso para desbloquear Web Audio
+    en iOS/PWA.
+  */
+  const silent = ctx.createBuffer(1, 1, ctx.sampleRate);
+  const source = ctx.createBufferSource();
+
+  source.buffer = silent;
+  source.connect(ctx.destination);
+  source.start(0);
 }
 
-async function loadSamples() {
-  createAudioEngine();
 
-  if (loadingPromise) return loadingPromise;
+/* ==========================================
+   PRECARGAR TODOS LOS WAV EN RAM
+   ========================================== */
+
+async function preload() {
+  if (ready || loading) return;
+
+  loading = true;
 
   if (status) {
     status.textContent = "Cargando sonidos...";
   }
 
-  loadingPromise = Promise.all(
-    Object.entries(files).map(async ([name, url]) => {
-      const response = await fetch(url, {
-        cache: "force-cache"
-      });
+  try {
+    createEngine();
 
-      if (!response.ok) {
-        throw new Error("No se pudo cargar " + url);
-      }
+    const entries = Object.entries(files);
 
-      const arrayBuffer = await response.arrayBuffer();
+    await Promise.all(
+      entries.map(async ([name, url]) => {
 
-      buffers[name] =
-        await ctx.decodeAudioData(arrayBuffer.slice(0));
-    })
-  )
-    .then(() => {
-      if (status) {
-        status.textContent =
-          "AUDIO LISTO • 10/10 sonidos cargados";
-      }
+        const response = await fetch(url, {
+          cache: "force-cache"
+        });
 
-      if (startButton) {
-        startButton.textContent = "AUDIO LISTO";
-      }
-    })
-    .catch(error => {
-      console.error(error);
+        if (!response.ok) {
+          throw new Error(url);
+        }
 
-      if (status) {
-        status.textContent =
-          "ERROR DE AUDIO: " + error.message;
-      }
+        const data = await response.arrayBuffer();
 
-      loadingPromise = null;
-    });
+        buffers[name] =
+          await ctx.decodeAudioData(data);
+      })
+    );
 
-  return loadingPromise;
+    ready = true;
+    loading = false;
+
+    if (status) {
+      status.textContent =
+        "AUDIO LISTO • 10/10 sonidos cargados";
+    }
+
+    if (startButton) {
+      startButton.textContent = "AUDIO LISTO";
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    loading = false;
+
+    if (status) {
+      status.textContent =
+        "ERROR DE AUDIO";
+    }
+  }
 }
 
-/*
-  Cada golpe crea un BufferSource NUEVO.
-  Así un golpe nunca corta al anterior.
-*/
-function playSound(name, element) {
-  if (!ctx || !buffers[name]) return;
 
-  if (ctx.state !== "running") {
-    ctx.resume().catch(() => {});
-  }
+/* ==========================================
+   DISPARO DE AUDIO
+   CAMINO ULTRA CORTO
+   ========================================== */
 
-  const source = ctx.createBufferSource();
+function trigger(name) {
+  if (!ready) return;
 
-  source.buffer = buffers[name];
+  const buffer = buffers[name];
 
-  /* Reproducción original: sin alterar pitch ni velocidad */
-  source.playbackRate.value = 1.0;
-
-  source.connect(master);
+  if (!buffer) return;
 
   /*
-    Pequeño margen de planificación.
-    Evita golpes perdidos cuando se toca muy rápido.
+    Cada golpe obtiene SU PROPIA VOZ.
+    Nunca reutilizamos ni detenemos otra.
   */
-  const when = Math.max(
-    ctx.currentTime,
-    ctx.currentTime + 0.001
-  );
+  const voice = ctx.createBufferSource();
 
-  source.start(when);
+  voice.buffer = buffer;
 
-  if (element) {
-    element.classList.add("hit");
+  /*
+    Afinación y velocidad originales.
+  */
+  voice.playbackRate.value = 1.0;
 
-    setTimeout(() => {
-      element.classList.remove("hit");
-    }, 65);
-  }
+  voice.connect(master);
 
-  source.onended = () => {
+  /*
+    Reproducir AHORA.
+    Sin temporizadores.
+    Sin await.
+    Sin planificación adicional.
+  */
+  voice.start();
+
+  voice.onended = () => {
     try {
-      source.disconnect();
+      voice.disconnect();
     } catch (_) {}
   };
 }
 
-async function prepareAudio() {
-  unlockAudio();
 
-  if (!loadingPromise) {
-    await loadSamples();
-  }
+/* ==========================================
+   EFECTO VISUAL SEPARADO DEL AUDIO
+   ========================================== */
 
-  if (ctx && ctx.state !== "running") {
-    try {
-      await ctx.resume();
-    } catch (_) {}
-  }
+function flash(element) {
+  element.classList.add("hit");
+
+  setTimeout(() => {
+    element.classList.remove("hit");
+  }, 45);
 }
 
-/* Botón de activación, aunque visualmente esté oculto */
+
+/* ==========================================
+   MULTITOUCH
+   ========================================== */
+
+const pads =
+  document.querySelectorAll("[data-sound]");
+
+pads.forEach(pad => {
+
+  pad.style.touchAction = "none";
+
+  pad.addEventListener(
+    "pointerdown",
+    event => {
+
+      event.preventDefault();
+
+      /*
+        IMPORTANTE:
+        si el motor ya está listo,
+        aquí solamente se dispara audio.
+      */
+      if (ready) {
+        trigger(pad.dataset.sound);
+        flash(pad);
+        return;
+      }
+
+      /*
+        Solo ocurre al iniciar la app.
+      */
+      unlockAudio();
+
+      preload().then(() => {
+        if (ready) {
+          trigger(pad.dataset.sound);
+          flash(pad);
+        }
+      });
+
+    },
+    {
+      passive: false
+    }
+  );
+
+});
+
+
+/* ==========================================
+   MASTER
+   ========================================== */
+
+if (masterSlider) {
+
+  masterSlider.addEventListener(
+    "input",
+    event => {
+
+      if (!master) return;
+
+      master.gain.value =
+        Number(event.target.value);
+
+    },
+    {
+      passive: true
+    }
+  );
+}
+
+
+/* ==========================================
+   BOTÓN DE AUDIO
+   AUNQUE ESTÉ OCULTO VISUALMENTE
+   ========================================== */
+
 if (startButton) {
+
   startButton.addEventListener(
     "pointerdown",
     () => {
       unlockAudio();
-      loadSamples();
-    },
-    { passive: true }
+      preload();
+    }
   );
 
-  startButton.addEventListener("click", () => {
-    unlockAudio();
-    loadSamples();
-  });
 }
 
-/* MASTER */
-if (masterSlider) {
-  masterSlider.addEventListener(
-    "input",
-    event => {
-      if (!master) return;
 
-      master.gain.setValueAtTime(
-        Number(event.target.value),
-        ctx.currentTime
-      );
-    },
-    { passive: true }
-  );
-}
+/* ==========================================
+   PRIMER TOQUE EN LA APP
+   ========================================== */
 
-/*
-  PADS:
-  pointerdown dispara el sonido inmediatamente.
-  No esperamos pointerup ni click.
-*/
-document
-  .querySelectorAll("[data-sound]")
-  .forEach(element => {
-    element.style.touchAction = "none";
-
-    element.addEventListener(
-      "pointerdown",
-      event => {
-        event.preventDefault();
-
-        unlockAudio();
-
-        const name = element.dataset.sound;
-
-        /*
-          Si ya está precargado:
-          tocar inmediatamente.
-        */
-        if (buffers[name]) {
-          playSound(name, element);
-          return;
-        }
-
-        /*
-          Solo ocurrirá durante la primera carga.
-        */
-        loadSamples().then(() => {
-          if (buffers[name]) {
-            playSound(name, element);
-          }
-        });
-      },
-      { passive: false }
-    );
-  });
-
-/*
-  Precarga apenas la app recibe el primer gesto.
-*/
-const firstGesture = () => {
+function firstTouch() {
   unlockAudio();
-  loadSamples();
-
-  document.removeEventListener(
-    "touchstart",
-    firstGesture
-  );
-
-  document.removeEventListener(
-    "pointerdown",
-    firstGesture
-  );
-};
-
-document.addEventListener(
-  "touchstart",
-  firstGesture,
-  {
-    passive: true,
-    once: true
-  }
-);
+  preload();
+}
 
 document.addEventListener(
   "pointerdown",
-  firstGesture,
+  firstTouch,
   {
-    passive: true,
-    once: true
+    once: true,
+    capture: true,
+    passive: true
   }
 );
+
+
+/* ==========================================
+   VOLVER A LA APP DESPUÉS DE MINIMIZAR
+   ========================================== */
 
 document.addEventListener(
   "visibilitychange",
   () => {
+
     if (
       document.visibilityState === "visible" &&
       ctx &&
       ctx.state === "suspended"
     ) {
-      ctx.resume().catch(() => {});
+      ctx.resume();
     }
+
   }
 );
+
+
+/* EVITAR MENÚ DE iOS AL MANTENER PULSADO */
 
 document.addEventListener(
   "contextmenu",
