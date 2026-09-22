@@ -391,3 +391,7 @@ footer{
         display:none !important;
     }
 }
+/* ===== OCULTAR BOTÓN ACTIVAR AUDIO ===== */
+#start{
+    display:none !important;
+}
