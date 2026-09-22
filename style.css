@@ -338,3 +338,51 @@ footer label{
   font-size:.52em !important;
   line-height:1 !important;
 }
+/* PARCHE CENTRO + PARCHE AGUDO: 50/50 */
+.agudo-pads{
+  flex:1 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:stretch !important;
+  justify-content:stretch !important;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  gap:10px !important;
+}
+
+.agudo-pads > .head{
+  position:static !important;
+  flex:1 1 50% !important;
+  width:50% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:8px !important;
+  inset:auto !important;
+  transform:none !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  border-radius:45% !important;
+  text-align:center !important;
+  overflow:hidden !important;
+  font-size:clamp(18px,2.5vw,34px) !important;
+  line-height:1.05 !important;
+}
+
+.agudo-pads > .head small{
+  display:block !important;
+  margin-top:5px !important;
+  font-size:.52em !important;
+}
